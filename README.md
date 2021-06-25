@@ -1,56 +1,75 @@
 # **Finding Lane Lines on the Road** 
-[![Udacity - Self-Driving Car NanoDegree](https://s3.amazonaws.com/udacity-sdc/github/shield-carnd.svg)](http://www.udacity.com/drive)
 
-<img src="examples/laneLines_thirdPass.jpg" width="480" alt="Combined Image" />
-
-Overview
----
-
-When we drive, we use our eyes to decide where to go.  The lines on the road that show us where the lanes are act as our constant reference for where to steer the vehicle.  Naturally, one of the first things we would like to do in developing a self-driving car is to automatically detect lane lines using an algorithm.
-
-In this project you will detect lane lines in images using Python and OpenCV.  OpenCV means "Open-Source Computer Vision", which is a package that has many useful tools for analyzing images.  
-
-To complete the project, two files will be submitted: a file containing project code and a file containing a brief write up explaining your solution. We have included template files to be used both for the [code](https://github.com/udacity/CarND-LaneLines-P1/blob/master/P1.ipynb) and the [writeup](https://github.com/udacity/CarND-LaneLines-P1/blob/master/writeup_template.md).The code file is called P1.ipynb and the writeup template is writeup_template.md 
-
-To meet specifications in the project, take a look at the requirements in the [project rubric](https://review.udacity.com/#!/rubrics/322/view)
+### Reflection
 
 
-Creating a Great Writeup
----
-For this project, a great writeup should provide a detailed response to the "Reflection" section of the [project rubric](https://review.udacity.com/#!/rubrics/322/view). There are three parts to the reflection:
+The following steps were followed in developing the pipeline
+1. Convert RGB image to greyscale with the aid of helper function greyscale().
+<img src="test_images/solidWhiteRight.jpg" width="360" alt="primary Image" />
+<img src="test_images_output/solidWhiteRight_gray.jpg" width="360" alt="gray Image" />
+2. Apply gaussian blur to greyscale at kernel size 5 using gaussian_blur()and perform canny edge detection with minimum threshold 40 and maximum threshold 120 with canny().
 
-1. Describe the pipeline
+    <img src="test_images_output/solidWhiteRight_cannyedge.jpg" width="360" alt="gray Image" />
+3.Define a polygon of interest to remove or ignore undesired portions of the image with help of region_of_interest()
+    <img src="test_images_output/solidWhiteRight_masked.jpg" width="360" alt="canny Image" />
+4.Retrieve Hough lines and impose lines to the original image 
+hough_lines() - to convert the lines from canny egde to hough lines
+draw_lines() - to draw lined from canny edge points.
+weighted_img() - to superimpose the results on the actual image
+    <img src="test_images_output/solidWhiteRight.jpg" width="360" alt="final Image" />
+ 
+ The following were the parameters considered for the above image
+ kernel_size = 5, 
+ low_threshold = 50, 
+ high_threshold = 150, 
+ vertices = (75,imshape(0)),(450, 320), (540, 320), (imshape(1),imshape(0)]----square brackets after imshape, 
+ rho = 1, 
+ theta = np.pi/180, 
+ threshold = 2, 
+ min_line_length = 15, 
+ max_line_gap = 15
 
-2. Identify any shortcomings
 
-3. Suggest possible improvements
+In order to draw a single line on the left and right lanes, I modified the draw_lines() function by making the following assumptions
 
-We encourage using images in your writeup to demonstrate how your pipeline works.  
+1. A mid point for image is assumed around x = 540, all points which lie to left of the point are considered to be contributing for left lane and points which lie right to this midpoint are contributing to right lane.
 
-All that said, please be concise!  We're not looking for you to write a book here: just a brief description.
+2. The left lane line is considered to have a positive slope and right lane line is considered to have negative slope.
 
-You're not required to use markdown for your writeup.  If you use another method please just submit a pdf of your writeup. Here is a link to a [writeup template file](https://github.com/udacity/CarND-LaneLines-P1/blob/master/writeup_template.md). 
+Based on these assumptions all the points detected in canny edge after masking are filtered by introducing a conditional of the assumptions in draw_lines() into two lines, which get imposed on left and right lanes of the image.
+    <img src="test_images_output/solidWhiteRight_extrapolate.jpg" width="360" alt="extrapolated Image" />
+
+The following were the parameters considered for the above image
+ kernel_size = 5, 
+ low_threshold = 50, 
+ high_threshold = 150, 
+ vertices = (75,imshape(0)),(450, 320), (540, 320), (imshape(1),imshape(0)]----square brackets after imshape, 
+ rho = 4, 
+ theta = np.pi/180, 
+ threshold = 50, 
+ min_line_length = 25, 
+ max_line_gap = 5
+ 
+The same parameters were used in testing the videos 
+
+solidWhiteRight.mp4
+
+solidYellowLeft.mp4
+
+### Shortcomings
 
 
-The Project
----
+The following would the potential shortcomings to current pipeline.
 
-## If you have already installed the [CarND Term1 Starter Kit](https://github.com/udacity/CarND-Term1-Starter-Kit/blob/master/README.md) you should be good to go!   If not, you should install the starter kit to get started on this project. ##
+1. This pipeline would fail if the road is not straight as this pipeline identifies only straight line lanes and extrapolates only lines.
+2. This pipeline is dependent on position of the camera as one of the assumptions is based on the midpoint of the assumption which is dependent on the location of the camera.
+3. The region of interest is fixed at a height considering only straight roads and is not flexible thereby leading to complete failure at curves.
+4. Several factors like night time, fog, intensity of light,etc. might hamper the quality of the image thereby leading to dynamic changes in the lane lines in each frame of the video.
+5. This pipeline needs further smoothening in lane line identification  with the video in examples.
 
-**Step 1:** Set up the [CarND Term1 Starter Kit](https://github.com/udacity/CarND-Term1-Starter-Kit/blob/master/README.md) if you haven't already.
+### possible improvements
 
-**Step 2:** Open the code in a Jupyter Notebook
+The following improvements could be done to the current pipeline
 
-You will complete the project code in a Jupyter notebook.  If you are unfamiliar with Jupyter Notebooks, check out [Udacity's free course on Anaconda and Jupyter Notebooks](https://classroom.udacity.com/courses/ud1111) to get started.
-
-Jupyter is an Ipython notebook where you can run blocks of code and see results interactively.  All the code for this project is contained in a Jupyter notebook. To start Jupyter in your browser, use terminal to navigate to your project directory and then run the following command at the terminal prompt (be sure you've activated your Python 3 carnd-term1 environment as described in the [CarND Term1 Starter Kit](https://github.com/udacity/CarND-Term1-Starter-Kit/blob/master/README.md) installation instructions!):
-
-`> jupyter notebook`
-
-A browser window will appear showing the contents of the current directory.  Click on the file called "P1.ipynb".  Another browser window will appear displaying the notebook.  Follow the instructions in the notebook to complete the project.  
-
-**Step 3:** Complete the project and submit both the Ipython notebook and the project writeup
-
-## How to write a README
-A well written README file can enhance your project and portfolio.  Develop your abilities to create professional README files by completing [this free course](https://www.udacity.com/course/writing-readmes--ud777).
-
+1. Although tracing pixels in a image is potentially a good idea, we are solely dependent on camera in this case whose failure or malfunctioning might hamper the pipeline, therefore we will need additional inputs like heat signatures,etc. to better aid the pipeline.
+2. Adapting to the road structure i.e. in case of curvatures is a challenge, this could be done by making region of the interest dynamic and moving away from lines to curves in such situation.
