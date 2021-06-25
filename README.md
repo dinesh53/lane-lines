@@ -12,6 +12,7 @@ The following steps were followed in developing the pipeline
     <img src="test_images_output/solidWhiteRight_cannyedge.jpg" width="360" alt="gray Image" />
 3.Define a polygon of interest to remove or ignore undesired portions of the image with help of region_of_interest()
     <img src="test_images_output/solidWhiteRight_masked.jpg" width="360" alt="canny Image" />
+
 4.Retrieve Hough lines and impose lines to the original image 
 hough_lines() - to convert the lines from canny egde to hough lines
 draw_lines() - to draw lined from canny edge points.
