@@ -38,6 +38,7 @@ In order to draw a single line on the left and right lanes, I modified the draw_
 2. The left lane line is considered to have a positive slope and right lane line is considered to have negative slope.
 
 Based on these assumptions all the points detected in canny edge after masking are filtered by introducing a conditional of the assumptions in draw_lines() into two lines, which get imposed on left and right lanes of the image.
+
     <img src="test_images_output/solidWhiteRight_extrapolate.jpg" width="360" alt="extrapolated Image" />
 
 The following were the parameters considered for the above image
